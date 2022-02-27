@@ -154,8 +154,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   pivot: {fileID: 1043865767}
   lineMaterial: {fileID: 2100000, guid: 918a2ba5bf6056a428b3edd48d9c71ed, type: 2}
+  nodeSample: {fileID: 0}
   lineSample: {fileID: 6670358061440539657, guid: 686ff4bcc7e33e54ab6e058e78838719,
     type: 3}
+  heavyObj: {fileID: 0}
   iterationCount: 4
   netSize: {x: 25, y: 25}
   lineColorRGB: {x: 0, y: 0, z: 0}
@@ -168,7 +170,7 @@ MonoBehaviour:
   nodes: []
   lines: []
   lineRenderer: {fileID: 237310854}
-  debugObj: {fileID: 0}
+  debugObj: {fileID: 1300045399}
   debugA: {x: 0, y: 0, z: 0}
   debugB: {x: 0, y: 0, z: 0}
 --- !u!4 &237310852
