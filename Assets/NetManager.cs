@@ -22,8 +22,6 @@ public class NetManager : MonoBehaviour
 
     public Vector2Int netSize;
 
-    public Vector3 lineColorRGB;
-
     public float
         lineWidth,
         internodeDistance,
@@ -39,13 +37,13 @@ public class NetManager : MonoBehaviour
 
     public List<Line> lines;
 
+    public List<Vector2Int> heavyNodes;
+
     private int[] order;
 
     private float simulationStart;
 
-    public LineRenderer lineRenderer;
-
-    public Transform debugObj;
+    public GameObject debugObj;
 
     private List<Line> linesToCut;
 
@@ -64,7 +62,6 @@ public class NetManager : MonoBehaviour
 
         simulationStart = Time.time;
 
-        inputHandler.onMouseSwipe += CutBetween;
         inputHandler.onMouseHold += Cut;
 
         linesToCut = new List<Line>();
@@ -81,12 +78,23 @@ public class NetManager : MonoBehaviour
             }
 
             CreateOrderArray();
-
-            lineRenderer.SetPosition(0, debugA);
-            lineRenderer.SetPosition(1, debugB);
-
-            //Debug.Log(lineRenderer.GetPosition(0) + " -- " + lineRenderer.GetPosition(1));
         }
+    }
+
+    private bool IsHeavy(int coordX, int coordY)
+    {
+        if (heavyNodes.Count > 0)
+        {
+            foreach (Vector2Int heavyNode in heavyNodes)
+            {
+                if (heavyNode.x == coordX && heavyNode.y == coordY)
+                {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 
     private void Initialize()
@@ -103,8 +111,12 @@ public class NetManager : MonoBehaviour
 
                 Node node = new Node(pos, new Vector2Int(i, j), (j == netSize.y - 1) ? true : false);
 
-                if (node.isHeavy)
+                if (IsHeavy(i, j))
                 {
+                    node.isHeavy = true;
+
+                    node.debugObject = GameObject.Instantiate(debugObj, node.position, Quaternion.identity);
+
                     node.moveability = 1f - heavyNodeInertia;
                 }
 
@@ -159,7 +171,8 @@ public class NetManager : MonoBehaviour
 
             if (node.isHeavy)
             {
-                debugObj.position = node.position;
+                node.debugObject.transform.position = node.position;
+                //debugObj.position = node.position;
             }
         }
 
@@ -227,30 +240,6 @@ public class NetManager : MonoBehaviour
             }
         }
     }
-    public Vector3 debugA, debugB;
-    private void CutBetween(Vector3 from, Vector3 to)
-    {
-        //debugA = from;
-        //debugB = to;
-
-        //Vector3 pt1 = Camera.main.ScreenToWorldPoint(from);
-        //Vector3 pt2 = Camera.main.ScreenToWorldPoint(to);
-
-        ////Debug.Log("from: " + from + " , to: " + to);
-
-
-        //for (int i = 0; i < lines.Count; i++)
-        //{
-        //    if (BonLibrary.CheckIntersection(from, to, lines[i].nodeA.position, lines[i].nodeB.position))
-        //    {
-        //        Debug.Log("before: " + lines.Count);
-        //        lines.Remove(lines[i]);
-        //        lines.TrimExcess();
-        //        Debug.Log("after: " + lines.Count);
-
-        //    }
-        //}
-    }
 
     private void Cut(Vector3 point)
     {
@@ -263,8 +252,6 @@ public class NetManager : MonoBehaviour
                 linesToCut.Add(lines[i]);
             }
         }
-
-        
     }
 
     protected void CreateOrderArray()
@@ -278,32 +265,4 @@ public class NetManager : MonoBehaviour
 
         order = BonLibrary.ShuffleArray(order, new System.Random());
     }
-
-    //private void OnDrawGizmos()
-    //{
-    //    if (nodes != null)
-    //    {
-    //        for (int i = 0; i < nodes.Count; i++)
-    //        {
-    //            if (nodes[i].isLocked)
-    //            {
-    //                Gizmos.color = new Color(lineColorRGB.x, lineColorRGB.y, lineColorRGB.z);
-    //            }
-    //            else if (nodes[i].coordinate == new Vector2Int(2, 3))
-    //            {
-    //                Gizmos.color = Color.blue;
-    //            }
-    //            else
-    //            {
-                    
-    //                Gizmos.color = Color.green;
-    //            }
-
-    //            Gizmos.DrawSphere(new Vector3(nodes[i].position.x, nodes[i].position.y, 0f), .03f);
-
-    //            Gizmos.DrawLine(debugA, debugB);
-    //        }
-
-    //    }
-    //}
 }
