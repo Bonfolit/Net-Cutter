@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -9,14 +10,15 @@ public class NetManager : MonoBehaviour
 
     private InputHandler inputHandler;
 
-    public Transform pivot;
+    public Transform 
+        pivot,
+        cutoffLevel;
 
     public Material lineMaterial;
 
     public GameObject
         nodeSample,
-        lineSample,
-        heavyObj;
+        lineSample;
 
     public int iterationCount;
 
@@ -28,24 +30,25 @@ public class NetManager : MonoBehaviour
         startDelay,
         cutRadius;
 
-    [Range(0f, 1f)]
-    public float heavyNodeInertia;
-
     public bool simulate;
 
     public List<Node> nodes;
 
     public List<Line> lines;
 
-    public List<Vector2Int> heavyNodes;
-
     private int[] order;
 
     private float simulationStart;
 
-    public GameObject debugObj;
-
     private List<Line> linesToCut;
+
+    public List<BaloonGroup> baloonGroups;
+
+    public List<Baloon> baloons;
+
+    public List<Bucket> buckets;
+
+    public Action<Baloon> onBaloonConsume;
 
     private void Awake()
     {
@@ -60,12 +63,15 @@ public class NetManager : MonoBehaviour
     {
         Initialize();
 
+        PlaceBaloons();
+
         simulationStart = Time.time;
 
         inputHandler.onMouseHold += Cut;
 
-        linesToCut = new List<Line>();
+        onBaloonConsume += OnBaloonConsume;
 
+        linesToCut = new List<Line>();
     }
 
     private void Update()
@@ -79,22 +85,6 @@ public class NetManager : MonoBehaviour
 
             CreateOrderArray();
         }
-    }
-
-    private bool IsHeavy(int coordX, int coordY)
-    {
-        if (heavyNodes.Count > 0)
-        {
-            foreach (Vector2Int heavyNode in heavyNodes)
-            {
-                if (heavyNode.x == coordX && heavyNode.y == coordY)
-                {
-                    return true;
-                }
-            }
-        }
-
-        return false;
     }
 
     private void Initialize()
@@ -112,16 +102,8 @@ public class NetManager : MonoBehaviour
                 Node node = GameObject.Instantiate(nodeSample, (Vector3)pos, Quaternion.identity, pivot).GetComponent<Node>();
 
                 node.Initialize(pos, new Vector2Int(i, j), (j == netSize.y - 1) ? true : false);
-                //Node node = new Node(pos, new Vector2Int(i, j), (j == netSize.y - 1) ? true : false);
 
-                if (IsHeavy(i, j))
-                {
-                    node.isHeavy = true;
-
-                    node.debugObject = GameObject.Instantiate(debugObj, node.position, Quaternion.identity);
-
-                    node.moveability = 1f - heavyNodeInertia;
-                }
+                node.moveability = 1f;
 
                 nodes.Add(node);
 
@@ -148,14 +130,81 @@ public class NetManager : MonoBehaviour
         CreateOrderArray();
     }
 
+    private void PlaceBaloons()
+    {
+        if (baloonGroups.Count == 0)
+        {
+            return;
+        }
+
+        for (int i = 0; i < nodes.Count; i++)
+        {
+            foreach (BaloonGroup group in baloonGroups)
+            {
+                if (group.coordinates.Count > 0)
+                {
+                    foreach (Vector2Int coord in group.coordinates)
+                    {
+                        if (coord == nodes[i].coordinate)
+                        {
+                            nodes[i].moveability = 1f - Mathf.Pow(group.inertia, .01f);
+
+                            Baloon baloon = GameObject.Instantiate(group.prefab, nodes[i].position, Quaternion.identity, pivot).GetComponent<Baloon>();
+
+                            baloons.Add(baloon);
+
+                            nodes[i].baloon = baloon;
+
+                            baloon.node = nodes[i];
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     private Node NodeAt(int posX, int posY)
     {
         return nodes.Find(a => a.coordinate.x == posX && a.coordinate.y == posY);
     }
 
-    private List<Node> GetHeavyNodes()
+    private void OnBaloonConsume(Baloon baloon)
     {
-        return nodes.FindAll(x => x.isHeavy);
+        if (!baloons.Contains(baloon))
+        {
+            Debug.LogWarning("Trying to remove a baloon that was already removed!");
+
+            return;
+        }
+
+        RemoveBaloon(baloon);
+
+        if (CheckCompletion())
+        {
+            GameManager.Instance.SetState(GameState.Success);
+        }
+    }
+
+    private void RemoveBaloon(Baloon baloon)
+    {
+        baloons.Remove(baloon);
+
+        Destroy(baloon.gameObject);
+
+        baloons.TrimExcess();
+    }
+
+    private bool CheckCompletion()
+    {
+        foreach (Bucket bucket in buckets)
+        {
+            if (bucket.requirement > 0)
+            {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     private void Simulate()
@@ -170,12 +219,6 @@ public class NetManager : MonoBehaviour
                 node.position += node.GravityStep;
 
                 node.prevPosition = prevPos;
-            }
-
-            if (node.isHeavy)
-            {
-                node.debugObject.transform.position = node.position;
-                //debugObj.position = node.position;
             }
         }
 
@@ -198,34 +241,26 @@ public class NetManager : MonoBehaviour
                     {
                         Vector2 newPos = center + (direction * line.defaultLength / 2f);
 
-                        if (line.nodeA.isHeavy)
-                        {
-                            line.nodeA.position = Vector2.Lerp(line.nodeA.position, newPos, 1f - heavyNodeInertia);
-                        }
-                        else
-                        {
-                            line.nodeA.position = newPos;
-                        }
-
-                        //line.nodeA.position = center + (direction * line.defaultLength / 2f);
+                        line.nodeA.MoveTowards(newPos);
                     }
 
                     if (!line.nodeB.isLocked)
                     {
                         Vector2 newPos = center - (direction * line.defaultLength / 2f);
 
-                        if (line.nodeB.isHeavy)
-                        {
-                            line.nodeB.position = Vector2.Lerp(line.nodeB.position, newPos, 1f - heavyNodeInertia);
-                        }
-                        else
-                        {
-                            line.nodeB.position = newPos;
-                        }
-
-                        //line.nodeB.position = center - (direction * line.defaultLength / 2f);
+                        line.nodeB.MoveTowards(newPos);
                     }
                 }
+            }
+        }
+
+        List<Line> cutoffLines = GetCutoffLines();
+
+        for (int i = 0; i < cutoffLines.Count; i++)
+        {
+            if (!linesToCut.Contains(cutoffLines[i]))
+            {
+                linesToCut.Add(cutoffLines[i]);
             }
         }
 
@@ -234,6 +269,16 @@ public class NetManager : MonoBehaviour
             while (linesToCut.Count > 0)
             {
                 lines.Remove(linesToCut[0]);
+
+                if (linesToCut[0].nodeA.baloon)
+                {
+                    RemoveBaloon(linesToCut[0].nodeA.baloon);
+                }
+
+                if (linesToCut[0].nodeB.baloon)
+                {
+                    RemoveBaloon(linesToCut[0].nodeB.baloon);
+                }
 
                 Destroy(linesToCut[0].gameObject);
 
@@ -244,10 +289,13 @@ public class NetManager : MonoBehaviour
         }
     }
 
+    private List<Line> GetCutoffLines()
+    {
+        return lines.FindAll(x => x.Center.y < cutoffLevel.position.y);
+    }
+
     private void Cut(Vector3 point)
     {
-        linesToCut = new List<Line>();
-
         for (int i = 0; i < lines.Count; i++)
         {
             if (Vector3.Distance(point, lines[i].Center) < cutRadius)
@@ -268,4 +316,15 @@ public class NetManager : MonoBehaviour
 
         order = BonLibrary.ShuffleArray(order, new System.Random());
     }
+}
+
+[System.Serializable]
+public class BaloonGroup
+{
+    public GameObject prefab;
+
+    [Range(0f, 1f)]
+    public float inertia;
+
+    public List<Vector2Int> coordinates;
 }

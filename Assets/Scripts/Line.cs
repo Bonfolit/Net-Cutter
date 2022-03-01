@@ -38,11 +38,6 @@ public class Line : MonoBehaviour
         {
             lineRenderer.SetPosition(0, (Vector3)nodeA.position);
             lineRenderer.SetPosition(1, (Vector3)nodeB.position);
-
-            if (nodeA.isHeavy)
-            {
-                //Debug.Log("heavy coords: " + nodeA.position);
-            }
         }
     }
 

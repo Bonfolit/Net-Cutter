@@ -10,13 +10,11 @@ public class Node: MonoBehaviour
         position,
         prevPosition;
 
-    public GameObject debugObject;
-
     public float moveability;
 
     public bool isLocked;
 
-    public bool isHeavy;
+    public Baloon baloon;
 
     public List<Line> connectedLines;
 
@@ -34,8 +32,18 @@ public class Node: MonoBehaviour
         coordinate = _coordinate;
 
         isLocked = _isLocked;
+    }
 
-        //isHeavy = coordinate.x == 0 && coordinate.y == 0 ? true : false;
+    public void MoveTowards(Vector2 targetPos)
+    {
+        if (baloon)
+        {
+            position = Vector2.Lerp(position, targetPos, moveability);
+        }
+        else
+        {
+            position = targetPos;
+        }
     }
 
     public void Initialize(Vector2 _position, Vector2Int _coordinate, bool _isLocked)
@@ -47,5 +55,13 @@ public class Node: MonoBehaviour
         coordinate = _coordinate;
 
         isLocked = _isLocked;
+    }
+
+    private void Update()
+    {
+        if (baloon)
+        {
+            //baloon.transform.position = (Vector3)position;
+        }
     }
 }
