@@ -154,7 +154,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   pivot: {fileID: 1043865767}
   lineMaterial: {fileID: 2100000, guid: 918a2ba5bf6056a428b3edd48d9c71ed, type: 2}
-  nodeSample: {fileID: 0}
+  nodeSample: {fileID: 8760720015262987170, guid: cca0104e91f17d148a8fdaec3877789e,
+    type: 3}
   lineSample: {fileID: 6670358061440539657, guid: 686ff4bcc7e33e54ab6e058e78838719,
     type: 3}
   heavyObj: {fileID: 0}
@@ -166,6 +167,7 @@ MonoBehaviour:
   cutRadius: 0.3
   heavyNodeInertia: 0.999
   simulate: 1
+  nodes: []
   lines: []
   heavyNodes:
   - {x: 0, y: 0}

@@ -64,11 +64,11 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Assets\InputHandler.cs" />
-    <Compile Include="Assets\Line.cs" />
-    <Compile Include="Assets\NetManager.cs" />
-    <Compile Include="Assets\Prefabs\Node.cs" />
     <Compile Include="Assets\Scripts\BonLibrary.cs" />
+    <Compile Include="Assets\Scripts\InputHandler.cs" />
+    <Compile Include="Assets\Scripts\Line.cs" />
+    <Compile Include="Assets\Scripts\NetManager.cs" />
+    <Compile Include="Assets\Scripts\Node.cs" />
     <Reference Include="UnityEngine">
       <HintPath>C:/Program Files/Unity/Hub/Editor/2019.4.16f1/Editor/Data/Managed/UnityEngine/UnityEngine.dll</HintPath>
     </Reference>
