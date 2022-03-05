@@ -64,14 +64,25 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Assets\Baloon.cs" />
-    <Compile Include="Assets\Bucket.cs" />
-    <Compile Include="Assets\GameManager.cs" />
-    <Compile Include="Assets\Scripts\BonLibrary.cs" />
-    <Compile Include="Assets\Scripts\InputHandler.cs" />
-    <Compile Include="Assets\Scripts\Line.cs" />
-    <Compile Include="Assets\Scripts\NetManager.cs" />
-    <Compile Include="Assets\Scripts\Node.cs" />
+    <Compile Include="Assets\Scripts\Core\Overhead\GameManager.cs" />
+    <Compile Include="Assets\Scripts\Core\Overhead\IGameStateListener.cs" />
+    <Compile Include="Assets\Scripts\Core\Overhead\LevelManager.cs" />
+    <Compile Include="Assets\Scripts\Core\UI\CompletedPanel.cs" />
+    <Compile Include="Assets\Scripts\Core\UI\FailedPanel.cs" />
+    <Compile Include="Assets\Scripts\Core\UI\IPanel.cs" />
+    <Compile Include="Assets\Scripts\Core\UI\InitialPanel.cs" />
+    <Compile Include="Assets\Scripts\Core\UI\NextButton.cs" />
+    <Compile Include="Assets\Scripts\Core\UI\PanelManager.cs" />
+    <Compile Include="Assets\Scripts\Core\UI\PlayButton.cs" />
+    <Compile Include="Assets\Scripts\Core\UI\PlayingPanel.cs" />
+    <Compile Include="Assets\Scripts\Gameplay\Baloon.cs" />
+    <Compile Include="Assets\Scripts\Gameplay\Bucket.cs" />
+    <Compile Include="Assets\Scripts\Gameplay\InputHandler.cs" />
+    <Compile Include="Assets\Scripts\Gameplay\Line.cs" />
+    <Compile Include="Assets\Scripts\Gameplay\NetManager.cs" />
+    <Compile Include="Assets\Scripts\Gameplay\Node.cs" />
+    <Compile Include="Assets\Scripts\Misc\BonLibrary.cs" />
+    <Compile Include="Assets\Scripts\Misc\GameConfigSO.cs" />
     <Reference Include="UnityEngine">
       <HintPath>C:/Program Files/Unity/Hub/Editor/2019.4.16f1/Editor/Data/Managed/UnityEngine/UnityEngine.dll</HintPath>
     </Reference>
